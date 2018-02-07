@@ -14,6 +14,9 @@ public class State {
 	
 	public State() {}
 	
+	
+	
+	
 	//Creates the initial pawns for the match
 	static State generateInitialState(int width, int height)
 	{
