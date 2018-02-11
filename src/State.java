@@ -2,9 +2,9 @@ import java.util.ArrayList;
 
 public class State {
 	public ArrayList<Pawn> pawns;
-	//maybe add whose turn it is (transposition table thought)
-	
-	//It might be a good idea to keep amount of each colored pawn as 2 INTs in here for heuristic purposes.
+	public boolean myTurn; //transposition table what? waldo?
+	public int myPawns;
+	public int opponentPawns;
 	
 	//I'm thinking we could maybe copy/reconstruct the parameter arraylist in here, using = for now though
 	public State(ArrayList<Pawn> p)
@@ -13,8 +13,6 @@ public class State {
 	}
 	
 	public State() {}
-	
-	
 	
 	
 	//Creates the initial pawns for the match
@@ -41,4 +39,20 @@ public class State {
 		initState.pawns = initPawns;
 		return initState;
 	}
+	//returns the pawn that it can capture, otherwise null.
+    public Pawn canCaptureLeft(Pawn p) {
+    	
+    	return null;
+    }
+	//returns the pawn that it can capture, otherwise null.
+    public Pawn canCaptureRight(Pawn p) {
+    	
+    	return null;
+    }
+    //returns the new position, otherwise null.
+    public Position canGoForward(Pawn p) {
+    
+    	return null;
+    }
+    
 }

@@ -6,9 +6,10 @@ public class StateNode {
 	
 	//some heuristic thing here probably?
 	
-	public StateNode(State s, StateNode p)
+	public StateNode(State s, StateNode p, String a)
 	{
 		state = s;
 		parent = p;
+		actionTo = a;
 	}
 }
