@@ -52,6 +52,10 @@ public class State {
     //returns the new position, otherwise null.
     public Position canGoForward(Pawn p) {
     
+    	return null; //might want to return bool isntead of null?  We'll seeeee
+    }
+    //returns the new position, otherwise null.
+    public Position canGoBackwards(Pawn p) {
     	return null;
     }
     

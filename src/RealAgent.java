@@ -28,6 +28,17 @@ public class RealAgent implements Agent{
 	    			roleOfLastPlayer = "black";
 	    		}
 	   			System.out.println(roleOfLastPlayer + " moved from " + x1 + "," + y1 + " to " + x2 + "," + y2);
+	   			Position oldPos = new Position(x1, y1);
+	   			Position newPos = new Position(x2, y2);
+	   			Pawn wasCaptured = new Pawn(role.equals("white")?Pawn.Color.White:Pawn.Color.Black, newPos); //if there was a captured pawn, we want to remove it.
+	   			Pawn movedPawn = new Pawn(role.equals("white")?Pawn.Color.Black:Pawn.Color.White, oldPos);
+	   			if(playState.pawns.contains(wasCaptured)) {
+	   				playState.pawns.remove(wasCaptured);
+	   				playState.myPawns--;
+	   			}
+	   			playState.pawns.remove(movedPawn); //delete old version of pawn
+	   			movedPawn.pos = newPos;
+	   			playState.pawns.add(movedPawn); //re-add the pawn
 	    		// TODO: 1. update your internal world model according to the action that was just executed
 	   			
 	   			
