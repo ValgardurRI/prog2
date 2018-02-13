@@ -41,11 +41,10 @@ public class Search {
 				
 				State newState = new State();
 				newState.pawns = s.state.pawns;
-				Pawn movedPawn = p;
-				movedPawn.pos.x--;
-				movedPawn.pos.y++;
+				Pawn movedPawn = leftCapture;
 				newState.pawns.remove(leftCapture);
 				newState.pawns.remove(p);
+				movedPawn.color = p.color;
 				newState.pawns.add(movedPawn);
 				
 				newState.myTurn = !s.state.myTurn;
@@ -61,11 +60,10 @@ public class Search {
 			if(s.state.canCaptureLeft(p) != null) {
 				State newState = new State();
 				newState.pawns = s.state.pawns;
-				Pawn movedPawn = p;
-				movedPawn.pos.x++;
-				movedPawn.pos.y++;
+				Pawn movedPawn = rightCapture;
 				newState.pawns.remove(rightCapture);
 				newState.pawns.remove(p);
+				movedPawn.color = p.color;
 				newState.pawns.add(movedPawn);
 				
 				newState.myTurn = !s.state.myTurn;
@@ -76,34 +74,32 @@ public class Search {
 				
 				states.add(newStateNode);
 				}
-			if(s.state.canGoForward(p) != null) {
+			Pawn forwardPawn = s.state.canGoForward(p);
+			if(forwardPawn != null) {
 				State newState = new State();
 				newState.pawns = s.state.pawns;
-				Pawn movedPawn = p;
-				movedPawn.pos.y++;
 				newState.pawns.remove(p);
-				newState.pawns.add(movedPawn);
+				newState.pawns.add(forwardPawn);
 				
 				newState.myTurn = !s.state.myTurn;
 				newState.opponentPawns = s.state.opponentPawns;
 				newState.myPawns = s.state.myPawns;
-				String action = "move(" + p.pos.x + " " + p.pos.y + " " + movedPawn.pos.x + " " + movedPawn.pos.y + " ";
+				String action = "move(" + p.pos.x + " " + p.pos.y + " " + forwardPawn.pos.x + " " + forwardPawn.pos.y + " ";
 				StateNode newStateNode = new StateNode(newState, s, action);
 				
 				states.add(newStateNode);
 			}
-			if(s.state.canGoBackwards(p) != null) {
+			Pawn backwardsPawn = s.state.canGoBackwards(p);
+			if(backwardsPawn != null) {
 				State newState = new State();
 				newState.pawns = s.state.pawns;
-				Pawn movedPawn = p;
-				movedPawn.pos.y--;
 				newState.pawns.remove(p);
-				newState.pawns.add(movedPawn);
+				newState.pawns.add(backwardsPawn);
 				
 				newState.myTurn = !s.state.myTurn;
 				newState.opponentPawns = s.state.opponentPawns;
 				newState.myPawns = s.state.myPawns;
-				String action = "move(" + p.pos.x + " " + p.pos.y + " " + movedPawn.pos.x + " " + movedPawn.pos.y + " ";
+				String action = "move(" + p.pos.x + " " + p.pos.y + " " + backwardsPawn.pos.x + " " + backwardsPawn.pos.y + " ";
 				StateNode newStateNode = new StateNode(newState, s, action);
 				
 				states.add(newStateNode);

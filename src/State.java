@@ -41,22 +41,62 @@ public class State {
 	}
 	//returns the pawn that it can capture, otherwise null.
     public Pawn canCaptureLeft(Pawn p) {
-    	
+    	Position leftCapture;
+    	int newX = p.pos.x + (p.color == Pawn.Color.White?-1:1);
+    	int newY = p.pos.y + (p.color == Pawn.Color.White?1:-1);
+    	leftCapture = new Position(newX, newY);
+    	Pawn captured = new Pawn(p.color == Pawn.Color.White?Pawn.Color.Black:Pawn.Color.White, leftCapture);
+    	if(pawns.contains(captured) && isInBounds(leftCapture)) {
+    		return captured;
+    	}
     	return null;
     }
 	//returns the pawn that it can capture, otherwise null.
     public Pawn canCaptureRight(Pawn p) {
     	
-    	return null;
+    	Position rightCapture;
+    	int newX = p.pos.x + (p.color == Pawn.Color.White?1:-1);
+    	int newY = p.pos.y + (p.color == Pawn.Color.White?1:-1);
+    	rightCapture = new Position(newX, newY);
+    	Pawn captured = new Pawn(p.color == Pawn.Color.White?Pawn.Color.Black:Pawn.Color.White, rightCapture);
+    	if(pawns.contains(captured) && isInBounds(rightCapture)) {
+    		return captured;
+    	}
+    	return null;    }
+    //returns the new position, otherwise null.
+    public Pawn canGoForward(Pawn p) {
+    	Position forward;
+    	int newY = p.pos.y + (p.color == Pawn.Color.White?1:-1);
+    	Position forwardPos = new Position(p.pos.x, newY);
+    	Pawn forwardPawn = new Pawn(p.color, forwardPos);
+    	//is there a pawn already there?  Then we can't move there.
+    	Pawn blockingPawn = new Pawn(p.color == Pawn.Color.White?Pawn.Color.Black:Pawn.Color.White, forwardPos);
+    	//we do not need to check for bounds, because if a pawn is facing the edge on the opponents side
+    	//we have reached a terminal state and will not expand that state.
+    	if(!pawns.contains(blockingPawn)) {
+    		return forwardPawn;
+    	}
+    	return null;    	
+        
     }
     //returns the new position, otherwise null.
-    public Position canGoForward(Pawn p) {
+    public Pawn canGoBackwards(Pawn p) {
+    	Position backwards;
+    	int newY = p.pos.y + (p.color == Pawn.Color.White?-1:1);
+    	Position backwardsPos = new Position(p.pos.x, newY);
+    	Pawn backwardsPawn = new Pawn(p.color, backwardsPos);
+    	//is there a pawn already there?  Then we can't move there.
+    	Pawn blockingPawn = new Pawn(p.color == Pawn.Color.White?Pawn.Color.Black:Pawn.Color.White, backwardsPos);
+    	boolean inBounds = true;
+    	if(!pawns.contains(blockingPawn) && isInBounds(backwardsPos)) {
+    		return backwardsPawn;
+    	}
+    	return null;    	
+    }
     
-    	return null; //might want to return bool isntead of null?  We'll seeeee
-    }
-    //returns the new position, otherwise null.
-    public Position canGoBackwards(Pawn p) {
-    	return null;
+    private boolean isInBounds(Position p) {
+    	return true;
+    	//TODO:  pass width and height into this, check for the bounds!!!
     }
     
 }
