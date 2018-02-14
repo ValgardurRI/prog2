@@ -5,14 +5,21 @@ public class State {
 	public boolean myTurn; //transposition table what? waldo?
 	public int myPawns;
 	public int opponentPawns;
+	public int width, height;
 	
 	//I'm thinking we could maybe copy/reconstruct the parameter arraylist in here, using = for now though
-	public State(ArrayList<Pawn> p)
+	public State(ArrayList<Pawn> p, int width, int height)
 	{
 		pawns = p;
+		this.width = width;
+		this.height = height;
 	}
 	
-	public State() {}
+	public State(int width, int height)
+	{
+		this.width = width;
+		this.height = height;
+	}
 	
 	
 	//Creates the initial pawns for the match
@@ -35,10 +42,12 @@ public class State {
 			}
 		}
 		
-		State initState = new State();
+		State initState = new State(width, height);
 		initState.pawns = initPawns;
 		return initState;
 	}
+	
+	
 	//returns the pawn that it can capture, otherwise null.
     public Pawn canCaptureLeft(Pawn p) {
     	Position leftCapture;
@@ -51,6 +60,8 @@ public class State {
     	}
     	return null;
     }
+    
+    
 	//returns the pawn that it can capture, otherwise null.
     public Pawn canCaptureRight(Pawn p) {
     	
@@ -62,7 +73,10 @@ public class State {
     	if(pawns.contains(captured) && isInBounds(rightCapture)) {
     		return captured;
     	}
-    	return null;    }
+    	return null;
+    }
+    
+    
     //returns the new position, otherwise null.
     public Pawn canGoForward(Pawn p) {
     	Position forward;
@@ -76,27 +90,15 @@ public class State {
     	if(!pawns.contains(blockingPawn)) {
     		return forwardPawn;
     	}
-    	return null;    	
-        
-    }
-    //returns the new position, otherwise null.
-    public Pawn canGoBackwards(Pawn p) {
-    	Position backwards;
-    	int newY = p.pos.y + (p.color == Pawn.Color.White?-1:1);
-    	Position backwardsPos = new Position(p.pos.x, newY);
-    	Pawn backwardsPawn = new Pawn(p.color, backwardsPos);
-    	//is there a pawn already there?  Then we can't move there.
-    	Pawn blockingPawn = new Pawn(p.color == Pawn.Color.White?Pawn.Color.Black:Pawn.Color.White, backwardsPos);
-    	boolean inBounds = true;
-    	if(!pawns.contains(blockingPawn) && isInBounds(backwardsPos)) {
-    		return backwardsPawn;
-    	}
-    	return null;    	
+    	return null;    	   
     }
     
+    
     private boolean isInBounds(Position p) {
+    	if (p.x > width || p.y > height) {
+    		return false;
+    	}
     	return true;
-    	//TODO:  pass width and height into this, check for the bounds!!!
     }
     
 }

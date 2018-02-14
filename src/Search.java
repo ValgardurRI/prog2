@@ -9,9 +9,11 @@ public class Search {
 	//just to create SOME sort of state space, I'm using an arraylist.
 	ArrayList<StateNode> states;
 	
-	public Search()
+	public Search(int width, int height)
 	{
 		states = new ArrayList<StateNode>();
+		this.width = width;
+		this.height = height;
 	}
 	
 	//expands our statenode list by generating list of legal moves from node
@@ -22,11 +24,10 @@ public class Search {
 			generateLegalMoves(s);
 			
 			
-			//4 cases:
+			//3 cases:
 			//there is an enemy, 1 up & 1 left
 			//there is an enemy, 1 up & 1 right
 			//move 1 up if it isn't at bounds and a friendly pawn isn't there
-			//move 1 down ----||----
 		}
 		//Ingibergur said that we're going to want to expand all legal moves for ALL pawns. 
 		//This means that our branching factor becomes insane. (but it makes sense though)
@@ -39,7 +40,7 @@ public class Search {
 			Pawn leftCapture = s.state.canCaptureLeft(p);
 			if(leftCapture != null) {
 				
-				State newState = new State();
+				State newState = new State(width, height);
 				newState.pawns = s.state.pawns;
 				Pawn movedPawn = leftCapture;
 				newState.pawns.remove(leftCapture);
@@ -58,7 +59,7 @@ public class Search {
 			}
 			Pawn rightCapture = s.state.canCaptureLeft(p);
 			if(s.state.canCaptureLeft(p) != null) {
-				State newState = new State();
+				State newState = new State(width, height);
 				newState.pawns = s.state.pawns;
 				Pawn movedPawn = rightCapture;
 				newState.pawns.remove(rightCapture);
@@ -76,7 +77,7 @@ public class Search {
 				}
 			Pawn forwardPawn = s.state.canGoForward(p);
 			if(forwardPawn != null) {
-				State newState = new State();
+				State newState = new State(width, height);
 				newState.pawns = s.state.pawns;
 				newState.pawns.remove(p);
 				newState.pawns.add(forwardPawn);
@@ -85,21 +86,6 @@ public class Search {
 				newState.opponentPawns = s.state.opponentPawns;
 				newState.myPawns = s.state.myPawns;
 				String action = "move(" + p.pos.x + " " + p.pos.y + " " + forwardPawn.pos.x + " " + forwardPawn.pos.y + " ";
-				StateNode newStateNode = new StateNode(newState, s, action);
-				
-				states.add(newStateNode);
-			}
-			Pawn backwardsPawn = s.state.canGoBackwards(p);
-			if(backwardsPawn != null) {
-				State newState = new State();
-				newState.pawns = s.state.pawns;
-				newState.pawns.remove(p);
-				newState.pawns.add(backwardsPawn);
-				
-				newState.myTurn = !s.state.myTurn;
-				newState.opponentPawns = s.state.opponentPawns;
-				newState.myPawns = s.state.myPawns;
-				String action = "move(" + p.pos.x + " " + p.pos.y + " " + backwardsPawn.pos.x + " " + backwardsPawn.pos.y + " ";
 				StateNode newStateNode = new StateNode(newState, s, action);
 				
 				states.add(newStateNode);
