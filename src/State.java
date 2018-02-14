@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class State {
 	public ArrayList<Pawn> pawns;
-	public boolean myTurn; //transposition table what? waldo?
+	public boolean myTurn; //transposition table what? waldo? á að gilda uppá aukastig að setja það upp, hjálpar computation hraða
 	public int myPawns;
 	public int opponentPawns;
 	public int width, height;
@@ -10,7 +10,11 @@ public class State {
 	//I'm thinking we could maybe copy/reconstruct the parameter arraylist in here, using = for now though
 	public State(ArrayList<Pawn> p, int width, int height)
 	{
-		pawns = p;
+		pawns = new ArrayList<Pawn>();
+		for(Pawn pawn : p)
+		{
+			pawns.add(pawn);
+		}
 		this.width = width;
 		this.height = height;
 	}
@@ -30,7 +34,7 @@ public class State {
 		{
 			for(int x = 0; x<width; x++)
 			{
-				initPawns.add(new Pawn(Pawn.Color.Black, new Position(x,y)));
+				initPawns.add(new Pawn(Pawn.Color.White, new Position(x+1,y+1)));
 			}
 		}
 		
@@ -38,7 +42,7 @@ public class State {
 		{
 			for(int x = 0; x<width; x++)
 			{
-				initPawns.add(new Pawn(Pawn.Color.White, new Position(x,y)));
+				initPawns.add(new Pawn(Pawn.Color.Black, new Position(x+1,y+1)));
 			}
 		}
 		
@@ -84,21 +88,38 @@ public class State {
     	Position forwardPos = new Position(p.pos.x, newY);
     	Pawn forwardPawn = new Pawn(p.color, forwardPos);
     	//is there a pawn already there?  Then we can't move there.
-    	Pawn blockingPawn = new Pawn(p.color == Pawn.Color.White?Pawn.Color.Black:Pawn.Color.White, forwardPos);
+    	//Pawn blockingPawn = new Pawn(p.color == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, forwardPos);
+    	for(Pawn iterator : pawns)
+    	{
+    		if(iterator.pos.equals(forwardPos))
+    		{
+    			return null;
+    		}
+    	}
     	//we do not need to check for bounds, because if a pawn is facing the edge on the opponents side
     	//we have reached a terminal state and will not expand that state.
-    	if(!pawns.contains(blockingPawn)) {
-    		return forwardPawn;
-    	}
-    	return null;    	   
+    	//if(!pawns.contains(blockingPawn)) {
+    	//	return forwardPawn;
+    	//}
+    	return forwardPawn;    	   
     }
     
     
     private boolean isInBounds(Position p) {
-    	if (p.x > width || p.y > height) {
+    	if (p.x > width || p.y > height || p.x <= 0 || p.y <= 0) {
     		return false;
     	}
     	return true;
     }
+    
+    @Override
+	public String toString() {
+    	String returnString = "";
+    	for(Pawn p : pawns)
+    	{
+    		returnString += (p + "\n");
+    	}
+		return returnString;
+	}
     
 }

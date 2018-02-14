@@ -7,8 +7,11 @@ public class RealAgent implements Agent{
 	private boolean myTurn; // whether it is this agent's turn or not
 	private int width, height; // dimensions of the board
 	State playState; // The state of the game as it appears 
+	Search adversarySearch;
 	
 	public void init(String role, int width, int height, int playclock) {
+		adversarySearch = new Search(width, height, role);
+		
 		this.role = role;
 		this.playclock = playclock;
 		myTurn = !role.equals("white");
@@ -36,7 +39,9 @@ public class RealAgent implements Agent{
 	   				playState.pawns.remove(wasCaptured);
 	   				playState.myPawns--;
 	   			}
-	   			playState.pawns.remove(movedPawn); //delete old version of pawn
+	   			
+	   			System.out.println("white pawn removed? " + playState.pawns.remove(movedPawn)); //delete old version of pawn
+	   			
 	   			movedPawn.pos = newPos;
 	   			playState.pawns.add(movedPawn); //re-add the pawn
 	    		// TODO: 1. update your internal world model according to the action that was just executed
@@ -52,17 +57,8 @@ public class RealAgent implements Agent{
 				
 				// Here we just construct a random move (that will most likely not even be possible),
 				// this needs to be replaced with the actual best move.
-				int x1,y1,x2,y2;
-				x1 = width-1;
-				x2 = x1 + 3;
-				if (role.equals("white")) {
-					y1 = height-1;
-					y2 = y1 + 1;
-				} else {
-					y1 = height-1;
-					y2 = y1 - 1;
-				}
-				return "(move " + x1 + " " + y1 + " " + x2 + " " + y2 + ")";
+				adversarySearch = new Search(playState, role);
+				return adversarySearch.testMove();
 			} else {
 				return "noop";
 			}
