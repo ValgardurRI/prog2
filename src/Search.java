@@ -167,8 +167,8 @@ public class Search {
 	{
 		//ArrayList<StateNode> nodes = generateLegalMoves(initNode);
 		//return nodes.get(nodes.size()-1).actionTo;
-		StateNode winBoy = minTurn(agentColor, initNode);
-		
+		StateNode winBoy = maxTurn(agentColor, initNode);
+		System.out.println("chosen path minimax value: " + winBoy.state.value());
 		while(winBoy.parent != initNode) {
 			winBoy = winBoy.parent;
 		}

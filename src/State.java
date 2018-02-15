@@ -148,6 +148,6 @@ public class State {
     			return -100;
     		}
     	}
-		return 0;
+		return myPawns-opponentPawns;
     }
 }
