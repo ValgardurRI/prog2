@@ -17,7 +17,7 @@ public class RealAgent implements Agent{
 		myTurn = !role.equals("white");
 		this.width = width;
 		this.height = height;
-		playState = State.generateInitialState(width, height);
+		playState = State.generateInitialState(width, height, role.equals("white") ? Pawn.Color.White : Pawn.Color.Black);
     }
 	
 	

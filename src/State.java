@@ -27,7 +27,7 @@ public class State {
 	
 	
 	//Creates the initial pawns for the match
-	static State generateInitialState(int width, int height)
+	static State generateInitialState(int width, int height, Pawn.Color color)
 	{
 		ArrayList<Pawn> initPawns = new ArrayList<Pawn>();
 		for(int y = 0; y<2; y++)
@@ -48,6 +48,7 @@ public class State {
 		
 		State initState = new State(width, height);
 		initState.pawns = initPawns;
+		initState.myColor = color;
 		return initState;
 	}
 	
@@ -113,14 +114,33 @@ public class State {
     }
     
     @Override
-	public String toString() {
-    	String returnString = "";
-    	for(Pawn p : pawns)
-    	{
-    		returnString += (p + "\n");
-    	}
-		return returnString;
-	}
+    public String toString() {
+        String returnString = "";
+        for(int y = height; y>=1; y--)
+        {
+            for(int x = 1; x<=width; x++)
+            {
+                char nextChar = '-';
+                for(Pawn p : pawns)
+                {
+                    if(p.pos.equals(new Position(x, y)))
+                    {
+                        if(p.color == Pawn.Color.White)
+                        {
+                            nextChar = 'W';
+                        }
+                        else
+                        {
+                            nextChar = 'B';
+                        }
+                    }
+                }
+                returnString += nextChar;
+            }
+            returnString += '\n';
+        }
+        return returnString;
+    }
     
     public Pawn.Color isWinstate() {
     	//has someone won?
@@ -148,6 +168,6 @@ public class State {
     			return -100;
     		}
     	}
-		return myPawns-opponentPawns;
+		return 0;
     }
 }

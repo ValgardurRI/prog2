@@ -11,13 +11,13 @@ public class Search {
 	public Search(int width, int height, String role)
 	{
 		//states = new ArrayList<StateNode>();
-		initNode = new StateNode(State.generateInitialState(width, height), null, "noop"); 
 		//states.add(initNode);
 		this.width = width;
 		this.height = height;
 		
 		
 		agentColor = role.equals("white") ? Pawn.Color.White : Pawn.Color.Black;
+		initNode = new StateNode(State.generateInitialState(width, height, agentColor), null, "noop"); 
 	}
 	
 	public Search(State startState, String role)
@@ -32,7 +32,7 @@ public class Search {
 	//expands our statenode list by generating list of legal moves from node
 	void expand()
 	{
-		generateLegalMoves(initNode);
+		//generateLegalMoves(initNode);
 		
 		//3 cases:
 		//there is an enemy, 1 up & 1 left
@@ -43,11 +43,11 @@ public class Search {
 	}
 	//for the state in stateNode s, we want to generate all legal moves.
 	//TODO: TEST
-	private ArrayList<StateNode> generateLegalMoves(StateNode s) {
+	private ArrayList<StateNode> generateLegalMoves(StateNode s, Pawn.Color color) {
 		ArrayList<StateNode> states = new ArrayList<StateNode>();
 
 		for(Pawn p: s.state.pawns) {
-			if(p.color == agentColor)
+			if(p.color == color)
 			{
 				Pawn leftCapture = s.state.canCaptureLeft(p);
 				if(leftCapture != null) {
@@ -115,21 +115,18 @@ public class Search {
 	public StateNode maxTurn(Pawn.Color playerColor, StateNode stateNode) {
 			//code for maxplayer
 			StateNode bestChild = null;
-			ArrayList<StateNode> childNodes = generateLegalMoves(stateNode); //TODO: change this function to no longer have this super weird global thing
-			if(childNodes.isEmpty()) {
+			ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); //TODO: change this function to no longer have this super weird global thing
+			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null) {
 				//no possible moves, terminal state
 				return stateNode;
 			}
 			
 			for(StateNode childNode: childNodes) {
-				   if( childNode.state.isWinstate() != null) {
-					   return childNode;
-				   }
 				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode);
 				   if(bestChild == null) {
 					   bestChild = generatedChild;
 				   }
-				   else if(bestChild.state.value() < generatedChild.state.value()) {
+				   if(bestChild.state.value() < generatedChild.state.value()) {
 					   bestChild = generatedChild;
 				   }
 			}
@@ -140,21 +137,18 @@ public class Search {
 
 		//code for minplayer
 		StateNode bestChild = null;
-		ArrayList<StateNode> childNodes = generateLegalMoves(stateNode); //TODO: change this function to no longer have this super weird global thing
-		if(childNodes.isEmpty()) {
+		ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); //TODO: change this function to no longer have this super weird global thing
+		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null) {
 			//no possible moves, terminal state
 			return stateNode;
 		}
 		
 		for(StateNode childNode: childNodes) {
-			   if( childNode.state.isWinstate() != null) {
-				   return childNode;
-			   }
 			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode);
 			   if(bestChild == null) {
 				   bestChild = generatedChild;
 			   }
-			   else if(bestChild.state.value() > generatedChild.state.value()) {
+			   if(bestChild.state.value() > generatedChild.state.value()) {
 				   bestChild = generatedChild;
 			   }
 		}
@@ -165,15 +159,39 @@ public class Search {
 	
 	public StateNode testMove()
 	{
-		//ArrayList<StateNode> nodes = generateLegalMoves(initNode);
-		//return nodes.get(nodes.size()-1).actionTo;
-		StateNode winBoy = maxTurn(agentColor, initNode);
+		/*
+		ArrayList<StateNode> nodes = generateLegalMoves(initNode, Pawn.Color.White);
+		StateNode testNode1 =  nodes.get(nodes.size()-1);
+		System.out.println(testNode1.state);
+		
+		nodes = generateLegalMoves(testNode1, Pawn.Color.Black);
+		StateNode testNode2 =  nodes.get(nodes.size()-1);
+		System.out.println(testNode2.state);
+		
+		nodes = generateLegalMoves(testNode2, Pawn.Color.White);
+		StateNode testNode3 =  nodes.get(nodes.size()-1);
+		System.out.println(testNode3.state);
+		
+		nodes = generateLegalMoves(testNode3, Pawn.Color.Black);
+		StateNode testNode4 =  nodes.get(nodes.size()-1);
+		System.out.println(testNode4.state);
+		
+		return testNode4;
+		*/
+		
+		
+		StateNode winBoy = maxTurn(agentColor, initNode); //WHHHHY MINMOVE???? WHY???
+		System.out.println("was it a winstate? " + winBoy.state.isWinstate());
 		System.out.println("chosen path minimax value: " + winBoy.state.value());
 		while(winBoy.parent != initNode) {
+			System.out.println(winBoy.state);
 			winBoy = winBoy.parent;
 		}
 		System.out.println(winBoy.state);
 		return winBoy;
+		
+		
+		
 	}
 	
 	
