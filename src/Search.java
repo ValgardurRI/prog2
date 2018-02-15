@@ -42,7 +42,6 @@ public class Search {
 		//This means that our branching factor becomes insane. (but it makes sense though)
 	}
 	//for the state in stateNode s, we want to generate all legal moves.
-	//TODO: TEST
 	private ArrayList<StateNode> generateLegalMoves(StateNode s, Pawn.Color color) {
 		ArrayList<StateNode> states = new ArrayList<StateNode>();
 
@@ -106,51 +105,64 @@ public class Search {
 		}
 		return states;
 	}
+
 	
-	public void getMove(State currentState) {
-		//expand and alpha beta prune from currentState and return the best move!
-		//TODO: implement : D
-	}
+	public StateNode maxTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta) { 
 	
-	public StateNode maxTurn(Pawn.Color playerColor, StateNode stateNode) {
-			//code for maxplayer
 			StateNode bestChild = null;
-			ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); //TODO: change this function to no longer have this super weird global thing
+			ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
 			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null) {
 				//no possible moves, terminal state
 				return stateNode;
 			}
-			
+			stateNode.value = Integer.MIN_VALUE;
 			for(StateNode childNode: childNodes) {
-				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode);
+				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta);
 				   if(bestChild == null) {
+					   //The first child we look at, let's instantiate some stuff!
 					   bestChild = generatedChild;
+					   stateNode.value = Integer.max(stateNode.value, bestChild.state.value());
 				   }
 				   if(bestChild.state.value() < generatedChild.state.value()) {
+					   //Is the child we're looking at better than any previous child?
+					   stateNode.value = Integer.max(stateNode.value, bestChild.state.value());
 					   bestChild = generatedChild;
 				   }
+				   if(stateNode.value >= beta) {
+					 //prune the other kids as this node will not be selected!
+					   return stateNode; 
+				   }
+				   alpha = Integer.max(stateNode.value, alpha);
 			}
 			return bestChild;
 	}
 	
-	public StateNode minTurn(Pawn.Color playerColor, StateNode stateNode) {
+	public StateNode minTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta) {
 
-		//code for minplayer
 		StateNode bestChild = null;
-		ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); //TODO: change this function to no longer have this super weird global thing
+		ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
 		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null) {
 			//no possible moves, terminal state
 			return stateNode;
 		}
-		
+		stateNode.value = Integer.MAX_VALUE;
 		for(StateNode childNode: childNodes) {
-			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode);
+			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta);
 			   if(bestChild == null) {
+				   //The first child we look at, let's instantiate some stuff!
 				   bestChild = generatedChild;
+				   stateNode.value = Integer.min(stateNode.value, bestChild.state.value());
 			   }
 			   if(bestChild.state.value() > generatedChild.state.value()) {
+				   //Is the child we're looking at better than any previous child?
+				   stateNode.value = Integer.min(stateNode.value, bestChild.state.value());
 				   bestChild = generatedChild;
 			   }
+			   if(stateNode.value <= alpha) {
+				 //prune the other kids as this node will not be selected!
+				   return stateNode; 
+			   }
+			   beta = Integer.max(stateNode.value, beta);
 		}
 		return bestChild;
 	}
@@ -179,8 +191,9 @@ public class Search {
 		return testNode4;
 		*/
 		
-		
-		StateNode winBoy = maxTurn(agentColor, initNode); //WHHHHY MINMOVE???? WHY???
+		int startAlpha = Integer.MIN_VALUE;
+		int startBeta = Integer.MAX_VALUE;
+		StateNode winBoy = maxTurn(agentColor, initNode, startAlpha, startBeta); 
 		System.out.println("was it a winstate? " + winBoy.state.isWinstate());
 		System.out.println("chosen path minimax value: " + winBoy.state.value());
 		while(winBoy.parent != initNode) {
