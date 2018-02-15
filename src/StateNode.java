@@ -12,4 +12,5 @@ public class StateNode {
 		parent = p;
 		actionTo = a;
 	}
+	
 }

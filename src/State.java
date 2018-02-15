@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class State {
 	public ArrayList<Pawn> pawns;
-	public boolean myTurn; //transposition table what? waldo? á að gilda uppá aukastig að setja það upp, hjálpar computation hraða
+	public Pawn.Color myColor;
 	public int myPawns;
 	public int opponentPawns;
 	public int width, height;
@@ -122,4 +122,32 @@ public class State {
 		return returnString;
 	}
     
+    public Pawn.Color isWinstate() {
+    	//has someone won?
+    	
+    	for(Pawn p:pawns) {
+    		if(p.pos.y == 1 && p.color == Pawn.Color.Black) {
+    			return Pawn.Color.Black;
+    		}
+    		if(p.pos.y == height && p.color == Pawn.Color.White) {
+    			return Pawn.Color.White;
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+    public int value() {
+    	Pawn.Color winStatus = isWinstate();
+    	
+    	if(winStatus!= null) {
+    		if(winStatus == myColor) {
+    			return 100;
+    		}
+    		else {
+    			return -100;
+    		}
+    	}
+		return 0;
+    }
 }

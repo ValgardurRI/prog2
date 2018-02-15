@@ -30,23 +30,24 @@ public class RealAgent implements Agent{
 	    		} else {
 	    			roleOfLastPlayer = "black";
 	    		}
-	   			System.out.println(roleOfLastPlayer + " moved from " + x1 + "," + y1 + " to " + x2 + "," + y2);
-	   			Position oldPos = new Position(x1, y1);
-	   			Position newPos = new Position(x2, y2);
-	   			Pawn wasCaptured = new Pawn(role.equals("white")?Pawn.Color.White:Pawn.Color.Black, newPos); //if there was a captured pawn, we want to remove it.
-	   			Pawn movedPawn = new Pawn(role.equals("white")?Pawn.Color.Black:Pawn.Color.White, oldPos);
-	   			if(playState.pawns.contains(wasCaptured)) {
-	   				playState.pawns.remove(wasCaptured);
-	   				playState.myPawns--;
+	    		if(!roleOfLastPlayer.equals(role)) {
+		   			System.out.println(roleOfLastPlayer + " moved from " + x1 + "," + y1 + " to " + x2 + "," + y2);
+		   			Position oldPos = new Position(x1, y1);
+		   			Position newPos = new Position(x2, y2);
+		   			Pawn wasCaptured = new Pawn(role.equals("white")?Pawn.Color.White:Pawn.Color.Black, newPos); //if there was a captured pawn, we want to remove it.
+		   			Pawn movedPawn = new Pawn(role.equals("white")?Pawn.Color.Black:Pawn.Color.White, oldPos);
+		   			if(playState.pawns.contains(wasCaptured)) {
+		   				System.out.println("captured was removed? " + playState.pawns.remove(wasCaptured));
+		   				playState.myPawns--;
+		   			}
+		   			
+		   			System.out.println("white pawn removed? " + playState.pawns.remove(movedPawn)); //delete old version of pawn
+		   			
+		   			movedPawn.pos = newPos;
+		   			playState.pawns.add(movedPawn); //re-add the pawn	   			
 	   			}
 	   			
-	   			System.out.println("white pawn removed? " + playState.pawns.remove(movedPawn)); //delete old version of pawn
-	   			
-	   			movedPawn.pos = newPos;
-	   			playState.pawns.add(movedPawn); //re-add the pawn
-	    		// TODO: 1. update your internal world model according to the action that was just executed
-	   			
-	   			
+
 	    	}
 			
 	    	// update turn (above that line it myTurn is still for the previous state)
@@ -58,7 +59,10 @@ public class RealAgent implements Agent{
 				// Here we just construct a random move (that will most likely not even be possible),
 				// this needs to be replaced with the actual best move.
 				adversarySearch = new Search(playState, role);
-				return adversarySearch.testMove();
+				
+				StateNode newPlayStateNode = adversarySearch.testMove();
+				playState = newPlayStateNode.state;
+				return newPlayStateNode.actionTo;
 			} else {
 				return "noop";
 			}
