@@ -10,7 +10,7 @@ public class RealAgent implements Agent{
 	Search adversarySearch;
 	
 	public void init(String role, int width, int height, int playclock) {
-		adversarySearch = new Search(width, height, role);
+		//adversarySearch = new Search(width, height, role);
 		
 		this.role = role;
 		this.playclock = playclock;
@@ -58,7 +58,7 @@ public class RealAgent implements Agent{
 				
 				// Here we just construct a random move (that will most likely not even be possible),
 				// this needs to be replaced with the actual best move.
-				adversarySearch = new Search(playState, role);
+				adversarySearch = new Search(playState, role, playclock);
 				
 				StateNode newPlayStateNode = adversarySearch.testMove();
 				playState = newPlayStateNode.state;

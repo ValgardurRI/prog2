@@ -168,6 +168,43 @@ public class State {
     			return -100;
     		}
     	}
-		return 0;
+		return utility();
+    }
+    
+    private int utility()
+    {
+    	return goalDistanceDelta()*2 + pawnDelta();
+    }
+    
+    private int pawnDelta()
+    {
+    	return (int)Math.pow(myPawns - opponentPawns, 5);
+    }
+    
+    private int goalDistanceDelta()
+    {
+    	int myClosest = 100;
+    	int theirClosest = 100;
+    	//How close is the closest pawn to the goal?
+    	for(Pawn p : pawns)
+    	{
+    		if(p.color == myColor)
+    		{
+    			int distance = Math.abs((p.pos.y - (myColor == Pawn.Color.White ? height : 1)));
+    			if(myClosest > distance)
+    			{
+    				myClosest = distance;
+    			}
+    		}
+    		else
+    		{
+    			int distance = Math.abs((p.pos.y - (myColor == Pawn.Color.White ? 1 : height)));
+    			if(theirClosest > distance)
+    			{
+    				theirClosest = distance;
+    			}
+    		}
+    	}
+    	return (int) Math.pow((theirClosest - myClosest), 5);
     }
 }

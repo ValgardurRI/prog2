@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.HashSet;
 
 
 public class Search {
@@ -7,8 +7,11 @@ public class Search {
 	int playclock;
 	Pawn.Color agentColor;
 	StateNode initNode;
-		
-	public Search(int width, int height, String role)
+	int playClock;
+	StateNode bestValueNode;
+	
+	long timeStart;
+	public Search(int width, int height, String role, int clock)
 	{
 		//states = new ArrayList<StateNode>();
 		//states.add(initNode);
@@ -18,15 +21,28 @@ public class Search {
 		
 		agentColor = role.equals("white") ? Pawn.Color.White : Pawn.Color.Black;
 		initNode = new StateNode(State.generateInitialState(width, height, agentColor), null, "noop"); 
+		
+		timeStart = System.currentTimeMillis();
+		
+		playClock = clock;
 	}
 	
-	public Search(State startState, String role)
+	private long ElapsedTime()
+	{
+		long timeNow = System.currentTimeMillis();
+		return (timeNow - timeStart)/1000l;
+	}
+	
+	public Search(State startState, String role, int clock)
 	{
 		initNode = new StateNode(startState, null, "noop"); 
 		this.width = startState.width;
 		this.height = startState.height;
 		
 		agentColor = role.equals("white") ? Pawn.Color.White : Pawn.Color.Black;
+		
+		playClock = clock;
+		timeStart = System.currentTimeMillis();
 	}
 	
 	//expands our statenode list by generating list of legal moves from node
@@ -42,8 +58,8 @@ public class Search {
 		//This means that our branching factor becomes insane. (but it makes sense though)
 	}
 	//for the state in stateNode s, we want to generate all legal moves.
-	private ArrayList<StateNode> generateLegalMoves(StateNode s, Pawn.Color color) {
-		ArrayList<StateNode> states = new ArrayList<StateNode>();
+	private HashSet<StateNode> generateLegalMoves(StateNode s, Pawn.Color color) {
+		HashSet<StateNode> states = new HashSet<StateNode>();
 
 		for(Pawn p: s.state.pawns) {
 			if(p.color == color)
@@ -60,8 +76,15 @@ public class Search {
 					newState.pawns.add(movedPawn);
 					
 					newState.myColor = s.state.myColor;
-					newState.opponentPawns = s.state.opponentPawns -1;
+					
+					newState.opponentPawns = s.state.opponentPawns;
 					newState.myPawns = s.state.myPawns;
+					
+					if(color == agentColor)
+						newState.opponentPawns--;
+					else
+						newState.myPawns--;
+					
 					String action = "(move " + p.pos.x + " " + p.pos.y + " " + movedPawn.pos.x + " " + movedPawn.pos.y + " )";
 					StateNode newStateNode = new StateNode(newState, s, action);
 					
@@ -79,7 +102,13 @@ public class Search {
 					newState.pawns.add(movedPawn);
 					
 					newState.myColor = s.state.myColor;
-					newState.opponentPawns = s.state.opponentPawns -1;
+					newState.opponentPawns = s.state.opponentPawns;
+					
+					if(color == agentColor)
+						newState.opponentPawns--;
+					else
+						newState.myPawns--;
+					
 					newState.myPawns = s.state.myPawns;
 					String action = "(move " + p.pos.x + " " + p.pos.y + " " + movedPawn.pos.x + " " + movedPawn.pos.y + " )";
 					StateNode newStateNode = new StateNode(newState, s, action);
@@ -107,17 +136,17 @@ public class Search {
 	}
 
 	
-	public StateNode maxTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta) { 
+	public StateNode maxTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta, int depth) { 
 	
 			StateNode bestChild = null;
-			ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
-			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null) {
+			HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
+			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || depth == 0 || ElapsedTime() > (playClock -1)) {
 				//no possible moves, terminal state
 				return stateNode;
 			}
 			stateNode.value = Integer.MIN_VALUE;
 			for(StateNode childNode: childNodes) {
-				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta);
+				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, depth - 1);
 				   if(bestChild == null) {
 					   //The first child we look at, let's instantiate some stuff!
 					   bestChild = generatedChild;
@@ -137,17 +166,17 @@ public class Search {
 			return bestChild;
 	}
 	
-	public StateNode minTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta) {
-
+	public StateNode minTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta, int depth) {
+		
 		StateNode bestChild = null;
-		ArrayList<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
-		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null) {
+		HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
+		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || depth == 0 ||  ElapsedTime() > (playClock -1)) {
 			//no possible moves, terminal state
 			return stateNode;
 		}
 		stateNode.value = Integer.MAX_VALUE;
 		for(StateNode childNode: childNodes) {
-			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta);
+			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, depth-1);
 			   if(bestChild == null) {
 				   //The first child we look at, let's instantiate some stuff!
 				   bestChild = generatedChild;
@@ -171,29 +200,10 @@ public class Search {
 	
 	public StateNode testMove()
 	{
-		/*
-		ArrayList<StateNode> nodes = generateLegalMoves(initNode, Pawn.Color.White);
-		StateNode testNode1 =  nodes.get(nodes.size()-1);
-		System.out.println(testNode1.state);
-		
-		nodes = generateLegalMoves(testNode1, Pawn.Color.Black);
-		StateNode testNode2 =  nodes.get(nodes.size()-1);
-		System.out.println(testNode2.state);
-		
-		nodes = generateLegalMoves(testNode2, Pawn.Color.White);
-		StateNode testNode3 =  nodes.get(nodes.size()-1);
-		System.out.println(testNode3.state);
-		
-		nodes = generateLegalMoves(testNode3, Pawn.Color.Black);
-		StateNode testNode4 =  nodes.get(nodes.size()-1);
-		System.out.println(testNode4.state);
-		
-		return testNode4;
-		*/
 		
 		int startAlpha = Integer.MIN_VALUE;
 		int startBeta = Integer.MAX_VALUE;
-		StateNode winBoy = maxTurn(agentColor, initNode, startAlpha, startBeta); 
+		StateNode winBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, 8); 
 		System.out.println("was it a winstate? " + winBoy.state.isWinstate());
 		System.out.println("chosen path minimax value: " + winBoy.state.value());
 		while(winBoy.parent != initNode) {
@@ -201,6 +211,7 @@ public class Search {
 			winBoy = winBoy.parent;
 		}
 		System.out.println(winBoy.state);
+		System.out.println("time to compute: " + ElapsedTime());
 		return winBoy;
 		
 		
