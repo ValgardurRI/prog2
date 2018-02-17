@@ -27,10 +27,10 @@ public class Search {
 		playClock = clock;
 	}
 	
-	private long ElapsedTime()
+	private double ElapsedTime()
 	{
 		long timeNow = System.currentTimeMillis();
-		return (timeNow - timeStart)/1000l;
+		return (timeNow - timeStart)/1000.0;
 	}
 	
 	public Search(State startState, String role, int clock)
@@ -136,17 +136,26 @@ public class Search {
 	}
 
 	
-	public StateNode maxTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta, int depth) { 
+	public StateNode maxTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta, int limit) { 
 	
 			StateNode bestChild = null;
 			HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
-			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || depth == 0 || ElapsedTime() > (playClock -1)) {
+			
+			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
 				//no possible moves, terminal state
 				return stateNode;
 			}
+			
+			if(ElapsedTime() > (playClock -1))
+			{
+				return null;
+			}
 			stateNode.value = Integer.MIN_VALUE;
 			for(StateNode childNode: childNodes) {
-				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, depth - 1);
+				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, limit - 1);
+				   if(generatedChild == null) {
+					   return null;
+				   }
 				   if(bestChild == null) {
 					   //The first child we look at, let's instantiate some stuff!
 					   bestChild = generatedChild;
@@ -155,6 +164,14 @@ public class Search {
 				   if(bestChild.state.value() < generatedChild.state.value()) {
 					   //Is the child we're looking at better than any previous child?
 					   stateNode.value = Integer.max(stateNode.value, bestChild.state.value());
+					   
+					   if(bestValueNode == null) {
+						   bestValueNode = stateNode;
+					   }
+					   else if(bestValueNode.value < stateNode.value)
+					   {
+						   bestValueNode = stateNode;
+					   }
 					   bestChild = generatedChild;
 				   }
 				   if(stateNode.value >= beta) {
@@ -166,17 +183,25 @@ public class Search {
 			return bestChild;
 	}
 	
-	public StateNode minTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta, int depth) {
+	public StateNode minTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta, int limit) {
 		
 		StateNode bestChild = null;
 		HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
-		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || depth == 0 ||  ElapsedTime() > (playClock -1)) {
+
+		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
 			//no possible moves, terminal state
 			return stateNode;
 		}
+		
+		if(ElapsedTime() > (playClock -1)) {
+			return null;
+		}
 		stateNode.value = Integer.MAX_VALUE;
 		for(StateNode childNode: childNodes) {
-			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, depth-1);
+			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, limit-1);
+			   if(generatedChild == null) {
+				   return null;
+			   }
 			   if(bestChild == null) {
 				   //The first child we look at, let's instantiate some stuff!
 				   bestChild = generatedChild;
@@ -203,13 +228,23 @@ public class Search {
 		
 		int startAlpha = Integer.MIN_VALUE;
 		int startBeta = Integer.MAX_VALUE;
-		StateNode winBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, 8); 
+		
+		StateNode runningBoy = initNode;
+		StateNode winBoy = initNode;
+		for(int i = 2; runningBoy != null; i += 2)
+		{
+			winBoy = runningBoy;
+			runningBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, i);
+		}
+		
 		System.out.println("was it a winstate? " + winBoy.state.isWinstate());
 		System.out.println("chosen path minimax value: " + winBoy.state.value());
+		
 		while(winBoy.parent != initNode) {
 			System.out.println(winBoy.state);
 			winBoy = winBoy.parent;
 		}
+		
 		System.out.println(winBoy.state);
 		System.out.println("time to compute: " + ElapsedTime());
 		return winBoy;
