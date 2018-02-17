@@ -162,10 +162,10 @@ public class State {
     	
     	if(winStatus!= null) {
     		if(winStatus == myColor) {
-    			return 100;
+    			return Integer.MAX_VALUE;
     		}
     		else {
-    			return -100;
+    			return Integer.MIN_VALUE;
     		}
     	}
 		return utility();

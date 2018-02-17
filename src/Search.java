@@ -141,37 +141,34 @@ public class Search {
 			StateNode bestChild = null;
 			HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
 			
+			//terminal test
 			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
-				//no possible moves, terminal state
+				stateNode.valueCheck(0, 0);
+				if (childNodes.isEmpty()) {
+					stateNode.value = 0;
+				}
 				return stateNode;
 			}
 			
-			if(ElapsedTime() > (playClock -1))
-			{
-				return null;
-			}
 			stateNode.value = Integer.MIN_VALUE;
 			for(StateNode childNode: childNodes) {
 				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, limit - 1);
-				   if(generatedChild == null) {
-					   return null;
-				   }
+				   generatedChild.valueCheck(limit, stateNode.value);
+
 				   if(bestChild == null) {
 					   //The first child we look at, let's instantiate some stuff!
 					   bestChild = generatedChild;
-					   stateNode.value = Integer.max(stateNode.value, bestChild.state.value());
+					   stateNode.value = Integer.max(stateNode.value, bestChild.value);
 				   }
-				   if(bestChild.state.value() < generatedChild.state.value()) {
+				   //watching the clock
+				    if(ElapsedTime() > (playClock -1))
+					{
+						return bestChild;
+					}
+				    
+				   if(bestChild.value < generatedChild.value) {
 					   //Is the child we're looking at better than any previous child?
-					   stateNode.value = Integer.max(stateNode.value, bestChild.state.value());
-					   
-					   if(bestValueNode == null) {
-						   bestValueNode = stateNode;
-					   }
-					   else if(bestValueNode.value < stateNode.value)
-					   {
-						   bestValueNode = stateNode;
-					   }
+					   stateNode.value = Integer.max(stateNode.value, bestChild.value);
 					   bestChild = generatedChild;
 				   }
 				   if(stateNode.value >= beta) {
@@ -185,31 +182,35 @@ public class Search {
 	
 	public StateNode minTurn(Pawn.Color playerColor, StateNode stateNode, int alpha, int beta, int limit) {
 		
-		StateNode bestChild = null;
+		StateNode bestChild = stateNode; //was null, lets see if this fixes anything.
 		HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
 
 		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
-			//no possible moves, terminal state
+			stateNode.valueCheck(0, 0);
+			if (childNodes.isEmpty()) {
+				stateNode.value = 0;
+			}
 			return stateNode;
 		}
 		
-		if(ElapsedTime() > (playClock -1)) {
-			return null;
-		}
-		stateNode.value = Integer.MAX_VALUE;
+		stateNode.value = -10000;
 		for(StateNode childNode: childNodes) {
 			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, limit-1);
-			   if(generatedChild == null) {
-				   return null;
-			   }
+			   generatedChild.valueCheck(limit, stateNode.value);
 			   if(bestChild == null) {
-				   //The first child we look at, let's instantiate some stuff!
+				   //The first child we look at, let's instantiate some stuff
 				   bestChild = generatedChild;
-				   stateNode.value = Integer.min(stateNode.value, bestChild.state.value());
+				   stateNode.value = Integer.min(stateNode.value, bestChild.value);
 			   }
-			   if(bestChild.state.value() > generatedChild.state.value()) {
+			   //We have run out of time for our search, and must return whatever the best option is so far to be compared with the previous best.
+			    if(ElapsedTime() > (playClock -1))
+				{
+					return bestChild;
+				}
+			    
+			   if(bestChild.value > generatedChild.value) {
 				   //Is the child we're looking at better than any previous child?
-				   stateNode.value = Integer.min(stateNode.value, bestChild.state.value());
+				   stateNode.value = Integer.min(stateNode.value, bestChild.value);
 				   bestChild = generatedChild;
 			   }
 			   if(stateNode.value <= alpha) {
@@ -217,6 +218,8 @@ public class Search {
 				   return stateNode; 
 			   }
 			   beta = Integer.max(stateNode.value, beta);
+			   
+
 		}
 		return bestChild;
 	}
@@ -229,16 +232,35 @@ public class Search {
 		int startAlpha = Integer.MIN_VALUE;
 		int startBeta = Integer.MAX_VALUE;
 		
+		//TEMP
+		initNode.value = Integer.MIN_VALUE;
+		
 		StateNode runningBoy = initNode;
 		StateNode winBoy = initNode;
-		for(int i = 2; runningBoy != null; i += 2)
+		int i = 2;
+		while (ElapsedTime() < (playClock -1))
 		{
-			winBoy = runningBoy;
 			runningBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, i);
+			if(ElapsedTime() > (playClock-1)) {
+				System.out.println("Timeout at layer " + i);
+				System.out.print(runningBoy == initNode);
+				/*if(winBoy.value < runningBoy.value) {
+					winBoy = runningBoy;
+				}*/
+			}
+			else {
+				System.out.print(".");
+				winBoy = runningBoy;
+			}
+			i += 2;
 		}
 		
 		System.out.println("was it a winstate? " + winBoy.state.isWinstate());
 		System.out.println("chosen path minimax value: " + winBoy.state.value());
+		
+		if(winBoy == null) {
+			System.out.println("UHHHHHHHHHHHHHH it's not really good, lads.  nullboy!!!!");
+		}
 		
 		while(winBoy.parent != initNode) {
 			System.out.println(winBoy.state);
