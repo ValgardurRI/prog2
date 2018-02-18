@@ -269,6 +269,7 @@ public class Search {
 		
 		System.out.println(winBoy.state);
 		System.out.println("time to compute: " + ElapsedTime());
+    	System.out.println("dying is bad: " + winBoy.state.dyingIsBad());
 		return winBoy;
 		
 		

@@ -173,12 +173,13 @@ public class State {
     
     private int utility()
     {
-    	return goalDistanceDelta()*2 + pawnDelta();
+    	return goalDistanceDelta()*2 + pawnDelta() + dyingIsBad()*20;
+    	//return dyingIsBad();
     }
     
     private int pawnDelta()
     {
-    	return (int)Math.pow(myPawns - opponentPawns, 5);
+    	return (myPawns - opponentPawns)*2;
     }
     
     private int goalDistanceDelta()
@@ -205,6 +206,37 @@ public class State {
     			}
     		}
     	}
-    	return (int) Math.pow((theirClosest - myClosest), 5);
+    	return (int) Math.pow((theirClosest - myClosest), 3);
+    }
+    
+    public int dyingIsBad()
+    {
+    	int val = -1;
+    	for(Pawn p : pawns)
+    	{
+    		int protection = 0;
+        	Position leftProtected;
+        	int newXl = p.pos.x + (p.color == Pawn.Color.White?1:-1);
+        	int newYl = p.pos.y + (p.color == Pawn.Color.White?1:-1);
+        	leftProtected = new Position(newXl, newYl);
+        	Pawn protectingl = new Pawn(p.color == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, leftProtected);
+        	if(pawns.contains(protectingl) && isInBounds(leftProtected)) {
+        		protection+=2;
+        	}
+        	Position rightProtected;
+        	int newXr = p.pos.x + (p.color == Pawn.Color.White?1:-1);
+        	int newYr = p.pos.y + (p.color == Pawn.Color.White?-1:1);
+        	rightProtected = new Position(newXr, newYr);
+        	Pawn protectingr = new Pawn(p.color == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, rightProtected);
+        	if(pawns.contains(protectingr) && isInBounds(rightProtected)) {
+        		protection+=2;
+        	}
+        	
+        	protection *= canCaptureLeft(p) != null ? 2 : 1;
+        	protection *= canCaptureRight(p) != null ? 2 : 1;
+
+        	val = p.color == myColor ? val + protection : val - protection;
+    	}
+    	return val;
     }
 }
