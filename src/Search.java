@@ -215,7 +215,7 @@ public class Search {
 				   stateNode.value = Integer.min(stateNode.value, bestChild.value);
 			   }
 			   //We have run out of time for our search, and must return whatever the best option is so far to be compared with the previous best.
-			    if(ElapsedTime() > (playClock -1))
+			    if(ElapsedTime() > (playClock -0.15))
 				{
 					return bestChild;
 				}
@@ -250,11 +250,11 @@ public class Search {
 		StateNode runningBoy = initNode;
 		StateNode winBoy = initNode;
 		int i = 2;
-		while (ElapsedTime() < (playClock -1))
+		while (ElapsedTime() < (playClock -0.15))
 		{
 			initNode.value = Integer.MIN_VALUE;
 			runningBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, i);
-			if(ElapsedTime() > (playClock-1)) {
+			if(ElapsedTime() > (playClock-0.15)) {
 				System.out.println("Timeout at layer " + i);
 			}
 			else {
