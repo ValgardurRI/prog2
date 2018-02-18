@@ -154,7 +154,7 @@ public class Search {
 			
 			//terminal test
 			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
-				stateNode.valueCheck(0, Integer.MIN_VALUE);
+				stateNode.valueCheck(0, 0);
 				if (childNodes.isEmpty()) {
 					stateNode.value = 0;
 				}
@@ -164,7 +164,7 @@ public class Search {
 			stateNode.value = Integer.MIN_VALUE;
 			for(StateNode childNode: childNodes) {
 				   StateNode generatedChild = minTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, limit - 1);
-				   generatedChild.valueCheck(limit, stateNode.value);
+				   generatedChild.valueCheck(0, Integer.MIN_VALUE);
 
 				   if(bestChild == null) {
 					   //The first child we look at, let's instantiate some stuff!
@@ -172,7 +172,7 @@ public class Search {
 					   stateNode.value = Integer.max(stateNode.value, bestChild.value);
 				   }
 				   //watching the clock
-				    if(ElapsedTime() > (playClock -1))
+				    if(ElapsedTime() > (playClock - 0.15))
 					{
 						return bestChild;
 					}
@@ -184,8 +184,8 @@ public class Search {
 				   }
 				   if(stateNode.value >= beta) {
 					 //prune the other kids as this node will not be selected!
-
-					   return stateNode;					   
+					   stateNode.valueCheck(limit-1,  Integer.MIN_VALUE);
+					   return stateNode;
 				   }
 				   alpha = Integer.max(stateNode.value, alpha);
 			}
@@ -198,7 +198,7 @@ public class Search {
 		HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
 
 		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
-			stateNode.valueCheck(0, Integer.MAX_VALUE);
+			stateNode.valueCheck(0, 10000);
 			if (childNodes.isEmpty()) {
 				stateNode.value = 0;
 			}
@@ -208,7 +208,7 @@ public class Search {
 		stateNode.value = Integer.MAX_VALUE;
 		for(StateNode childNode: childNodes) {
 			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, limit-1);
-			   generatedChild.valueCheck(limit, stateNode.value);
+			   generatedChild.valueCheck(0, Integer.MAX_VALUE);
 			   if(bestChild == null) {
 				   //The first child we look at, let's instantiate some stuff
 				   bestChild = generatedChild;
@@ -265,6 +265,7 @@ public class Search {
 				break; //This will stop him from going much too far.
 			
 			System.out.println("State expansions for a search of depth " + i + ": " + totalExpansions);
+			System.out.println("Expected value: " + winBoy.value);
 			totalExpansions = 0;
 			i += 2;
 		}
