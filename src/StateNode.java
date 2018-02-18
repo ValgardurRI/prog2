@@ -19,10 +19,6 @@ public class StateNode {
 			//only if we are at a terminal state or have reached the max depth for this iteration do we want the node to have any value to propagate back up.
 			value = state.value();
 		}
-		//otherwise, we do not change the value.
-		else {
-			value = -20000;
-		}
 	}
 	
 }

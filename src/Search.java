@@ -143,7 +143,7 @@ public class Search {
 			
 			//terminal test
 			if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
-				stateNode.valueCheck(0, 0);
+				stateNode.valueCheck(0, Integer.MIN_VALUE);
 				if (childNodes.isEmpty()) {
 					stateNode.value = 0;
 				}
@@ -173,7 +173,8 @@ public class Search {
 				   }
 				   if(stateNode.value >= beta) {
 					 //prune the other kids as this node will not be selected!
-					   return stateNode; 
+
+					   return stateNode;					   
 				   }
 				   alpha = Integer.max(stateNode.value, alpha);
 			}
@@ -186,14 +187,14 @@ public class Search {
 		HashSet<StateNode> childNodes = generateLegalMoves(stateNode, playerColor); 
 
 		if(childNodes.isEmpty() || stateNode.state.isWinstate() != null || limit == 0) {
-			stateNode.valueCheck(0, 0);
+			stateNode.valueCheck(0, Integer.MAX_VALUE);
 			if (childNodes.isEmpty()) {
 				stateNode.value = 0;
 			}
 			return stateNode;
 		}
 		
-		stateNode.value = -10000;
+		stateNode.value = Integer.MAX_VALUE;
 		for(StateNode childNode: childNodes) {
 			   StateNode generatedChild = maxTurn(playerColor == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, childNode, alpha, beta, limit-1);
 			   generatedChild.valueCheck(limit, stateNode.value);
@@ -256,7 +257,7 @@ public class Search {
 		}
 		
 		System.out.println("was it a winstate? " + winBoy.state.isWinstate());
-		System.out.println("chosen path minimax value: " + winBoy.state.value());
+		System.out.println("chosen path minimax value: " + winBoy.value);
 		
 		if(winBoy == null) {
 			System.out.println("UHHHHHHHHHHHHHH it's not really good, lads.  nullboy!!!!");
