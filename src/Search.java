@@ -9,6 +9,7 @@ public class Search {
 	StateNode initNode;
 	int playClock;
 	StateNode bestValueNode;
+	private int totalExpansions; 
 	
 	long timeStart;
 	public Search(int width, int height, String role, int clock)
@@ -43,6 +44,8 @@ public class Search {
 		
 		playClock = clock;
 		timeStart = System.currentTimeMillis();
+		
+		totalExpansions = 0;
 	}
 	
 	//expands our statenode list by generating list of legal moves from node
@@ -90,6 +93,8 @@ public class Search {
 					
 					states.add(newStateNode);
 					
+					totalExpansions++;
+					
 				}
 				Pawn rightCapture = s.state.canCaptureRight(p);
 				if(s.state.canCaptureRight(p) != null) {
@@ -114,6 +119,9 @@ public class Search {
 					StateNode newStateNode = new StateNode(newState, s, action);
 					
 					states.add(newStateNode);
+					
+					totalExpansions++;
+					
 					}
 				Pawn forwardPawn = s.state.canGoForward(p);
 				if(forwardPawn != null) {
@@ -129,6 +137,9 @@ public class Search {
 					StateNode newStateNode = new StateNode(newState, s, action);
 					
 					states.add(newStateNode);
+					
+					totalExpansions++;
+					
 				}
 			}
 		}
@@ -244,24 +255,18 @@ public class Search {
 			runningBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, i);
 			if(ElapsedTime() > (playClock-1)) {
 				System.out.println("Timeout at layer " + i);
-				System.out.print(runningBoy == initNode);
-				/*if(winBoy.value < runningBoy.value) {
-					winBoy = runningBoy;
-				}*/
 			}
 			else {
 				System.out.print(".");
 				winBoy = runningBoy;
 			}
+			if(winBoy.state.isWinstate() == agentColor) 
+				break; //This will stop him from going much too far.
 			i += 2;
 		}
 		
-		System.out.println("was it a winstate? " + winBoy.state.isWinstate());
-		System.out.println("chosen path minimax value: " + winBoy.value);
-		
-		if(winBoy == null) {
-			System.out.println("UHHHHHHHHHHHHHH it's not really good, lads.  nullboy!!!!");
-		}
+		System.out.println("chosen value: " + winBoy.value);
+		System.out.println("Total number of state expansion: " + totalExpansions);
 		
 		while(winBoy.parent != initNode) {
 			System.out.println(winBoy.state);
