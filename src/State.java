@@ -173,7 +173,7 @@ public class State {
     
     private int utility()
     {
-    	return goalDistanceDelta()*2 + pawnDelta() + dyingIsBad()*20;
+    	return goalDistanceDelta()*2 + pawnDelta() + dyingIsBad()*10;
     	//return dyingIsBad();
     }
     
@@ -211,10 +211,10 @@ public class State {
     
     public int dyingIsBad()
     {
-    	int val = -1;
+    	int val = 0;
     	for(Pawn p : pawns)
     	{
-    		int protection = 0;
+    		int protection = -1;
         	Position leftProtected;
         	int newXl = p.pos.x + (p.color == Pawn.Color.White?1:-1);
         	int newYl = p.pos.y + (p.color == Pawn.Color.White?1:-1);
