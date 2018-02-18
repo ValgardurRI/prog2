@@ -252,6 +252,7 @@ public class Search {
 		int i = 2;
 		while (ElapsedTime() < (playClock -1))
 		{
+			initNode.value = Integer.MIN_VALUE;
 			runningBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, i);
 			if(ElapsedTime() > (playClock-1)) {
 				System.out.println("Timeout at layer " + i);
@@ -268,19 +269,23 @@ public class Search {
 			i += 2;
 		}
 		
-		System.out.println("chosen value: " + winBoy.value);		
-		while(winBoy.parent != initNode) {
-			System.out.println(winBoy.state);
-			winBoy = winBoy.parent;
+		System.out.println("chosen value: " + winBoy.value);
+		if(winBoy == initNode) {
+			System.out.println("god shit howdy fuck my lads");
 		}
+		else {
+			while(winBoy.parent != initNode) {
+				System.out.println(winBoy.state);
+				winBoy = winBoy.parent;
+			}
+		}
+		
 		
 		System.out.println(winBoy.state);
 		System.out.println("time to compute: " + ElapsedTime());
     	System.out.println("dying is bad: " + winBoy.state.dyingIsBad());
 		return winBoy;
-		
-		
-		
+
 	}
 	
 	
