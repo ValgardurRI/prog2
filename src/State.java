@@ -1,16 +1,17 @@
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 public class State {
-	public ArrayList<Pawn> pawns;
+	public PriorityQueue<Pawn> pawns;
 	public Pawn.Color myColor;
 	public int myPawns;
 	public int opponentPawns;
 	public int width, height;
 	
 	//I'm thinking we could maybe copy/reconstruct the parameter arraylist in here, using = for now though
-	public State(ArrayList<Pawn> p, int width, int height)
+	public State(PriorityQueue<Pawn> p, int width, int height)
 	{
-		pawns = new ArrayList<Pawn>();
+		pawns = new PriorityQueue<Pawn>(new PawnComparator());
 		for(Pawn pawn : p)
 		{
 			pawns.add(pawn);
@@ -29,7 +30,7 @@ public class State {
 	//Creates the initial pawns for the match
 	static State generateInitialState(int width, int height, Pawn.Color color)
 	{
-		ArrayList<Pawn> initPawns = new ArrayList<Pawn>();
+		PriorityQueue<Pawn> initPawns = new PriorityQueue<Pawn>(new PawnComparator());
 		for(int y = 0; y<2; y++)
 		{
 			for(int x = 0; x<width; x++)
@@ -84,7 +85,6 @@ public class State {
     
     //returns the new position, otherwise null.
     public Pawn canGoForward(Pawn p) {
-    	Position forward;
     	int newY = p.pos.y + (p.color == Pawn.Color.White?1:-1);
     	Position forwardPos = new Position(p.pos.x, newY);
     	Pawn forwardPawn = new Pawn(p.color, forwardPos);

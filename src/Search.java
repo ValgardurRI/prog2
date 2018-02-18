@@ -262,12 +262,13 @@ public class Search {
 			}
 			if(winBoy.state.isWinstate() == agentColor) 
 				break; //This will stop him from going much too far.
+			
+			System.out.println("State expansions for a search of depth " + i + ": " + totalExpansions);
+			totalExpansions = 0;
 			i += 2;
 		}
 		
-		System.out.println("chosen value: " + winBoy.value);
-		System.out.println("Total number of state expansion: " + totalExpansions);
-		
+		System.out.println("chosen value: " + winBoy.value);		
 		while(winBoy.parent != initNode) {
 			System.out.println(winBoy.state);
 			winBoy = winBoy.parent;
