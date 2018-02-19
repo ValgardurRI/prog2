@@ -168,7 +168,7 @@ public class State {
     
     private int utility()
     {
-    	return goalDistanceDelta()*2 + pawnDelta() + dyingIsBad()*10;
+    	return goalDistanceDelta()*2 + pawnDelta() + staySafe()*10;
     }
     
     private int pawnDelta()
@@ -203,7 +203,7 @@ public class State {
     	return (int) Math.pow((theirClosest - myClosest), 3);
     }
     
-    public int dyingIsBad()
+    public int staySafe()
     {
     	int val = 0;
     	for(Pawn p : pawns)
