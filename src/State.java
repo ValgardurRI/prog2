@@ -89,7 +89,6 @@ public class State {
     	Position forwardPos = new Position(p.pos.x, newY);
     	Pawn forwardPawn = new Pawn(p.color, forwardPos);
     	//is there a pawn already there?  Then we can't move there.
-    	//Pawn blockingPawn = new Pawn(p.color == Pawn.Color.White ? Pawn.Color.Black : Pawn.Color.White, forwardPos);
     	for(Pawn iterator : pawns)
     	{
     		if(iterator.pos.equals(forwardPos))
@@ -97,11 +96,7 @@ public class State {
     			return null;
     		}
     	}
-    	//we do not need to check for bounds, because if a pawn is facing the edge on the opponents side
-    	//we have reached a terminal state and will not expand that state.
-    	//if(!pawns.contains(blockingPawn)) {
-    	//	return forwardPawn;
-    	//}
+
     	return forwardPawn;    	   
     }
     
@@ -174,7 +169,6 @@ public class State {
     private int utility()
     {
     	return goalDistanceDelta()*2 + pawnDelta() + dyingIsBad()*10;
-    	//return dyingIsBad();
     }
     
     private int pawnDelta()

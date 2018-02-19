@@ -9,7 +9,7 @@ public class Search {
 	StateNode initNode;
 	int playClock;
 	StateNode bestValueNode;
-	private int totalExpansions; 
+	int totalExpansions; 
 	
 	long timeStart;
 	public Search(int width, int height, String role, int clock)
@@ -48,18 +48,7 @@ public class Search {
 		totalExpansions = 0;
 	}
 	
-	//expands our statenode list by generating list of legal moves from node
-	void expand()
-	{
-		//generateLegalMoves(initNode);
-		
-		//3 cases:
-		//there is an enemy, 1 up & 1 left
-		//there is an enemy, 1 up & 1 right
-		//move 1 (up if white, down if black) if it isn't at bounds and a friendly pawn isn't there
-		//Ingibergur said that we're going to want to expand all legal moves for ALL pawns. 
-		//This means that our branching factor becomes insane. (but it makes sense though)
-	}
+
 	//for the state in stateNode s, we want to generate all legal moves.
 	private HashSet<StateNode> generateLegalMoves(StateNode s, Pawn.Color color) {
 		HashSet<StateNode> states = new HashSet<StateNode>();
@@ -235,57 +224,47 @@ public class Search {
 		}
 		return bestChild;
 	}
-	
-	//should be deleted eventually, testing purposes
-	
-	public StateNode testMove()
+		
+	public StateNode findMove()
 	{
 		
 		int startAlpha = Integer.MIN_VALUE;
 		int startBeta = Integer.MAX_VALUE;
 		
-		//TEMP
 		initNode.value = Integer.MIN_VALUE;
 		
-		StateNode runningBoy = initNode;
-		StateNode winBoy = initNode;
+		StateNode calculatedNode = initNode;
+		StateNode chosenMoveNode = initNode;
 		int i = 2;
 		while (ElapsedTime() < (playClock -0.15))
 		{
 			initNode.value = Integer.MIN_VALUE;
-			runningBoy = maxTurn(agentColor, initNode, startAlpha, startBeta, i);
-			if(ElapsedTime() > (playClock-0.15)) {
-				System.out.println("Timeout at layer " + i);
+			calculatedNode = maxTurn(agentColor, initNode, startAlpha, startBeta, i);
+			if(ElapsedTime() < (playClock-0.15)) {
+				//the last search could have been aborted, so we need to check that the calculatedNode is from a complete search.
+				chosenMoveNode = calculatedNode;
 			}
-			else {
-				System.out.print(".");
-				winBoy = runningBoy;
-			}
-			if(winBoy.state.isWinstate() == agentColor) 
-				break; //This will stop him from going much too far.
 			
-			System.out.println("State expansions for a search of depth " + i + ": " + totalExpansions);
-			System.out.println("Expected value: " + winBoy.value);
+			if(chosenMoveNode.state.isWinstate() == agentColor) {
+				//if we have found a win, we do not need to keep searching
+				break;
+			}
+
 			totalExpansions = 0;
+			//we want to increment i by 2, so we make sure that the bottom layer is one of our own moves.
 			i += 2;
 		}
-		
-		System.out.println("chosen value: " + winBoy.value);
-		if(winBoy == initNode) {
-			System.out.println("god shit howdy fuck my lads");
+
+		if(chosenMoveNode == initNode) {
+			System.out.println("ERROR");
 		}
 		else {
-			while(winBoy.parent != initNode) {
-				System.out.println(winBoy.state);
-				winBoy = winBoy.parent;
+			while(chosenMoveNode.parent != initNode) {
+				//the actual node we return is a terminal state or from the bottom of the search, we need to trace our way back up.
+				chosenMoveNode = chosenMoveNode.parent;
 			}
 		}
-		
-		
-		System.out.println(winBoy.state);
-		System.out.println("time to compute: " + ElapsedTime());
-    	System.out.println("dying is bad: " + winBoy.state.dyingIsBad());
-		return winBoy;
+		return chosenMoveNode;
 
 	}
 	

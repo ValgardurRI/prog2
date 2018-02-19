@@ -53,14 +53,10 @@ public class RealAgent implements Agent{
 	    	// update turn (above that line it myTurn is still for the previous state)
 			myTurn = !myTurn;
 			if (myTurn) {
-				// TODO: 2. run alpha-beta search to determine the best move
-
 				
-				// Here we just construct a random move (that will most likely not even be possible),
-				// this needs to be replaced with the actual best move.
 				adversarySearch = new Search(playState, role, playclock);
 				
-				StateNode newPlayStateNode = adversarySearch.testMove();
+				StateNode newPlayStateNode = adversarySearch.findMove();
 				playState = newPlayStateNode.state;
 				return newPlayStateNode.actionTo;
 			} else {
